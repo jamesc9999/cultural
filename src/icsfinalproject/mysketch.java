@@ -23,6 +23,7 @@ public class mysketch extends PApplet {
     private Character npc;
     private PImage background;
     private PImage background2;
+    private PImage waterfall;
     private PImage textbox;
     Projectile[] arrows = new Projectile[10000];
     private Boss ox;
@@ -59,6 +60,7 @@ public class mysketch extends PApplet {
         textbox = loadImage("images/box.png");
         background = loadImage("images/level1.png");
         background2 = loadImage("images/level2.png");
+        waterfall = loadImage("images/waterfall.png");
         ox = new Boss(this, 50, 0, 100, 10, "images/ox.png");
         starttime = millis(); // start time
     }
@@ -102,11 +104,11 @@ public class mysketch extends PApplet {
             int maxLines = 6;
             if (!questcomplete) { // dialogue if quest is not complete
                 if (dialogueIndex < maxLines) {
-                    text(dialogue[dialogueIndex], 100, 650);
+                    text(dialogue[dialogueIndex], 120, 610);
                 }
             } else {
                 if (dialogueIndex < dialogue.length) {
-                    text(dialogue[dialogueIndex], 100, 650);
+                    text(dialogue[dialogueIndex], 120, 610);
                 }
             }
         }
@@ -135,6 +137,8 @@ public class mysketch extends PApplet {
         fill(0);
         textSize(30);
         text("Back", backX + 40, backY + 35);
+    } else if (stage == 3) {
+        image(waterfall,0,0);
     }
     // movement (GLOBAL, always runs)
     if (keyPressed) {
@@ -162,6 +166,11 @@ public class mysketch extends PApplet {
             oxdeathtime = millis();
         }
     }
+    // Firecracker
+    for (int i = 0; i < arrowcount; i++) {
+        arrows[i].movement();
+        arrows[i].draw();
+        }
 }
 
     public void keyPressed() {
@@ -172,6 +181,10 @@ public class mysketch extends PApplet {
         }
         if (key == 'z' && arrowcount < arrows.length) {
             arrows[arrowcount] = new Projectile(this, 10, 10, mc.getX(), mc.getY(), "images/arrowupright.png");
+            arrowcount++;
+        }
+        if (key == 'x' && questcomplete) {
+            arrows[arrowcount] = new Projectile(this, 30, 50, mc.getX(), mc.getY(), "images/arrowupright.png");
             arrowcount++;
         }
         if (stage == 2 && keyCode == ENTER) { // Progress dialogue if enter is pressed
