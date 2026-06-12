@@ -27,6 +27,7 @@ public class mysketch extends PApplet {
     private PImage textbox;
     Projectile[] arrows = new Projectile[10000];
     private Boss ox;
+    private Boss nian;
     private boolean oxalive = true;
     private boolean questcomplete = false;
     private int oxdeathtime = -1;
@@ -38,6 +39,10 @@ public class mysketch extends PApplet {
     float playX = 250, playY = 350, playW = 300, playH = 80;
     float instX = 250, instY = 460, instW = 300, instH = 80;
     float backX = 50, backY = 700, backW = 150, backH = 50;
+    // Boss
+    private BossBullet[] bossBullets = new BossBullet[1000];
+    private int bossBulletCount = 0;
+    private float angle = 0;
 
     public void settings() {
         size(800, 800);
@@ -62,6 +67,7 @@ public class mysketch extends PApplet {
         background2 = loadImage("images/level2.png");
         waterfall = loadImage("images/waterfall.png");
         ox = new Boss(this, 50, 0, 100, 10, "images/ox.png");
+        nian = new Boss(this, 400, 300, 100, 10, "images/nian.png");
         starttime = millis(); // start time
     }
 
@@ -72,7 +78,7 @@ public class mysketch extends PApplet {
         fill(255);
         textSize(50);
         textAlign(CENTER);
-        text("Welcome", 400, 180);
+        text("The Legend of Nian", 400, 180);
         // Play button
         fill(220);
         rect(playX, playY, playW, playH, 10);
@@ -138,7 +144,33 @@ public class mysketch extends PApplet {
         textSize(30);
         text("Back", backX + 40, backY + 35);
     } else if (stage == 3) {
-        image(waterfall,0,0);
+        image(waterfall, 0, 0);
+        mc.draw();
+        // Nian moves in a circle
+        angle += 0.03;
+        int centerX = 400;
+        int centerY = 300;
+        int radius = 150;
+        nian.x = (int)(centerX + radius * cos(angle));
+        nian.y = (int)(centerY + radius * sin(angle));
+        nian.draw();
+        // Nian shoots once every second
+        if (frameCount % 60 == 0 && bossBulletCount < bossBullets.length) {
+            bossBullets[bossBulletCount] =
+                new BossBullet(this,nian.x,nian.y,mc.getX(),mc.getY());
+            bossBulletCount++;
+        }
+        // Move and draw boss bullets
+        for (int i = 0; i < bossBulletCount; i++) {
+            bossBullets[i].move();
+            bossBullets[i].draw();
+        }
+        // Boss title
+        fill(255);
+        textSize(30);
+        textAlign(CENTER);
+        text("NIAN", 400, 50);
+        textAlign(LEFT);
     }
     // movement (GLOBAL, always runs)
     if (keyPressed) {
@@ -184,12 +216,20 @@ public class mysketch extends PApplet {
             arrowcount++;
         }
         if (key == 'x' && questcomplete) {
-            arrows[arrowcount] = new Projectile(this, 30, 50, mc.getX(), mc.getY(), "images/arrowupright.png");
+            arrows[arrowcount] = new Projectile(this, 30, 50, mc.getX(), mc.getY(), "images/firecracker.png");
             arrowcount++;
         }
         if (stage == 2 && keyCode == ENTER) { // Progress dialogue if enter is pressed
-            if (dialogueIndex < dialogue.length - 1) {
-                dialogueIndex++;
+            if (!questcomplete) {
+                if (dialogueIndex < 5) { // only first 6 lines (0-5)
+                    dialogueIndex++;
+                }
+            } else {
+                if (dialogueIndex < dialogue.length - 1) {
+                    dialogueIndex++;
+                } else {
+                    stage = 3; // dialogue finished, go to stage 3
+                }
             }
         }
     }
