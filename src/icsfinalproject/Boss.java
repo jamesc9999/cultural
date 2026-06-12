@@ -33,6 +33,18 @@ public class Boss {
         y += dy;
     }
     
+    public void takeDamage(int dmg) {
+        bhealth -= dmg;
+    }
+    
+    public int getHealth() {
+        return bhealth;
+    }
+    
+    public boolean isDead(){
+        return bhealth <= 0;
+    }
+    
     public void draw() {
         app.image(bosspic,x,y);
     }

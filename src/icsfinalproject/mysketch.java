@@ -40,7 +40,7 @@ public class mysketch extends PApplet {
     float instX = 250, instY = 460, instW = 300, instH = 80;
     float backX = 50, backY = 700, backW = 150, backH = 50;
     // Boss
-    private BossBullet[] bossBullets = new BossBullet[1000];
+    private BossBullet[] bossBullets = new BossBullet[10000];
     private int bossBulletCount = 0;
     private float angle = 0;
 
@@ -67,7 +67,7 @@ public class mysketch extends PApplet {
         background2 = loadImage("images/level2.png");
         waterfall = loadImage("images/waterfall.png");
         ox = new Boss(this, 50, 0, 100, 10, "images/ox.png");
-        nian = new Boss(this, 400, 300, 100, 10, "images/nian.png");
+        nian = new Boss(this, 400, 300, 1000, 10, "images/nian.png");
         starttime = millis(); // start time
     }
 
@@ -145,7 +145,13 @@ public class mysketch extends PApplet {
         text("Back", backX + 40, backY + 35);
     } else if (stage == 3) {
         image(waterfall, 0, 0);
+        // Draw player
         mc.draw();
+        // Player HP
+        fill(0, 255, 0);
+        textSize(20);
+        textAlign(CENTER);
+        text("HP: " + mc.health,mc.getX() + 75,mc.getY() + 170);
         // Nian moves in a circle
         angle += 0.03;
         int centerX = 400;
@@ -153,24 +159,38 @@ public class mysketch extends PApplet {
         int radius = 150;
         nian.x = (int)(centerX + radius * cos(angle));
         nian.y = (int)(centerY + radius * sin(angle));
+        // Draw Nian
         nian.draw();
+        // Nian HP
+        fill(255, 0, 0);
+        text("HP: " + nian.bhealth,nian.x + 75,nian.y + 170);
         // Nian shoots once every second
         if (frameCount % 60 == 0 && bossBulletCount < bossBullets.length) {
-            bossBullets[bossBulletCount] =
-                new BossBullet(this,nian.x,nian.y,mc.getX(),mc.getY());
+            bossBullets[bossBulletCount] =new BossBullet(this,nian.x,nian.y,mc.getX(),mc.getY());
             bossBulletCount++;
+        } else if (stage==4) {
+            
         }
-        // Move and draw boss bullets
-        for (int i = 0; i < bossBulletCount; i++) {
+    // Move and draw boss bullets
+    for (int i = 0; i < bossBulletCount; i++) {
+        if (bossBullets[i] != null) {
             bossBullets[i].move();
             bossBullets[i].draw();
+            if (bossBullets[i].isCollidingWith(mc)) {
+                mc.health -= 5; // damage amount
+                bossBullets[i] = null; // remove bullet
+                if (mc.health <= 0) {
+                    stage = 0; // game over or return to menu
+                }
+            }
         }
-        // Boss title
-        fill(255);
-        textSize(30);
-        textAlign(CENTER);
-        text("NIAN", 400, 50);
-        textAlign(LEFT);
+    }
+    // Boss title
+    fill(255);
+    textSize(30);
+    textAlign(CENTER);
+    text("NIAN", 400, 50);
+    textAlign(LEFT);
     }
     // movement (GLOBAL, always runs)
     if (keyPressed) {
@@ -189,21 +209,27 @@ public class mysketch extends PApplet {
     }
     // arrows (GLOBAL, always runs)
     for (int i = 0; i < arrowcount; i++) {
-        arrows[i].movement();
-        arrows[i].draw();
-
-        if (oxalive && arrows[i].isCollidingWith(ox)) {
-            oxalive = false;
-            stage = 2;
-            oxdeathtime = millis();
+        if (arrows[i] != null) {
+            arrows[i].movement();
+            arrows[i].draw();
+            // Ox fight
+            if (oxalive && arrows[i].isCollidingWith(ox)) {
+                oxalive = false;
+                stage = 2;
+                oxdeathtime = millis();
+                arrows[i] = null;
+            }
+            // Nian fight
+            if (stage == 3 && arrows[i].isCollidingWith(nian)) {
+                nian.bhealth -= arrows[i].getdamage();
+                arrows[i] = null;
+                if (nian.bhealth <= 0) {
+                    stage = 4; // victory screen
+                }
+            }
         }
     }
-    // Firecracker
-    for (int i = 0; i < arrowcount; i++) {
-        arrows[i].movement();
-        arrows[i].draw();
-        }
-}
+ }
 
     public void keyPressed() {
         if (stage == 0) {

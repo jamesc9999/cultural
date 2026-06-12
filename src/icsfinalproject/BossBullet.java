@@ -26,6 +26,16 @@ public class BossBullet {
         x += dx * speed;
         y += dy * speed;
     }
+    
+    public boolean isCollidingWith(Character player) {
+
+        boolean isLeftOfOtherRight = x < player.getX() + 150;
+        boolean isRightOfOtherLeft = x + 20 > player.getX();
+        boolean isAboveOtherBottom = y < player.getY() + 150;
+        boolean isBelowOtherTop = y + 20 > player.getY();
+
+        return isLeftOfOtherRight && isRightOfOtherLeft && isAboveOtherBottom && isBelowOtherTop;
+    }
 
     public void draw() {
         app.fill(255, 0, 0);

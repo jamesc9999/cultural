@@ -13,7 +13,7 @@ import processing.core.PImage;
 public class Character {
     private int x, y;
     private PApplet app;
-    private int health, pspeed;
+    public int health, pspeed;
     private PImage character;
     private int height, width;
     

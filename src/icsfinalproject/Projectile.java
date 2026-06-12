@@ -34,8 +34,8 @@ public class Projectile {
         y+=-speed;
     }
     
-    public void shoot() {
-        
+    public int getdamage() {
+        return dmg;
     }
     
     public boolean isCollidingWith(Boss boss) {
