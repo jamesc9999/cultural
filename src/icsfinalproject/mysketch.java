@@ -17,6 +17,9 @@ import static processing.core.PApplet.sin;
 import static processing.core.PConstants.CENTER;
 
 /**
+ * Main game class for The Legend of Nian.
+ * Controls game states, rendering, user input,
+ * boss fights, dialogue, and file handling.
  *
  * @author 342822160
  */
