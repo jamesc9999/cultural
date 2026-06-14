@@ -40,6 +40,7 @@ public class Projectile {
         return dmg;
     }
     
+    // Collision
     public boolean isCollidingWith(Boss boss) {
         boolean isLeftOfOtherRight = x < boss.x + boss.width;
         boolean isRightOfOtherLeft = x + width > boss.x;

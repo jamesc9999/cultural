@@ -27,6 +27,7 @@ public class BossBullet {
         y += dy * speed;
     }
     
+    // Collision
     public boolean isCollidingWith(Character player) {
 
         boolean isLeftOfOtherRight = x < player.getX() + 150;

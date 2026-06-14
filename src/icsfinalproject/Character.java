@@ -28,6 +28,7 @@ public class Character {
         this.width=this.character.width;
     }
     
+    // Collision
     public boolean isCollidingWith(Character character) {
         boolean isLeftOfOtherRight = x < character.x + character.width;
         boolean isRightOfOtherLeft = x + width > character.x;
