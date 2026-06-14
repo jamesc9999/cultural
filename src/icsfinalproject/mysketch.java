@@ -4,11 +4,17 @@
  */
 package icsfinalproject;
 
+import icsfinalproject.BossBullet;
 import processing.core.PApplet;
 import processing.core.PImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import javax.sound.sampled.*; // For music
+import java.io.File;
+import static processing.core.PApplet.cos;
+import static processing.core.PApplet.sin;
+import static processing.core.PConstants.CENTER;
 
 /**
  *
@@ -43,6 +49,9 @@ public class mysketch extends PApplet {
     private BossBullet[] bossBullets = new BossBullet[10000];
     private int bossBulletCount = 0;
     private float angle = 0;
+    boolean bossIntro = true;
+    Clip music;
+    Clip music2;
 
     public void settings() {
         size(800, 800);
@@ -67,9 +76,23 @@ public class mysketch extends PApplet {
         background2 = loadImage("images/level2.png");
         waterfall = loadImage("images/waterfall.png");
         ox = new Boss(this, 50, 0, 100, 10, "images/ox.png");
-        nian = new Boss(this, 400, 300, 1000, 10, "images/nian.png");
+        nian = new Boss(this, 400, 300, 1500, 10, "images/nian.png");
         starttime = millis(); // start time
-    }
+        try { // For music
+            AudioInputStream audio1 = AudioSystem.getAudioInputStream(
+                new File("data/asgore.wav")
+            );
+            music = AudioSystem.getClip();
+            music.open(audio1);
+            AudioInputStream audio2 = AudioSystem.getAudioInputStream(
+                new File("data/battleagainstatruehero.wav")
+            );
+            music2 = AudioSystem.getClip();
+            music2.open(audio2);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+}
 
     public void draw() {
     // Main menu
@@ -145,6 +168,10 @@ public class mysketch extends PApplet {
         text("Back", backX + 40, backY + 35);
     } else if (stage == 3) {
         image(waterfall, 0, 0);
+        // Play music
+        if (music != null && !music.isRunning()) {
+            music.loop(Clip.LOOP_CONTINUOUSLY);
+        }
         // Draw player
         mc.draw();
         // Player HP
@@ -168,8 +195,6 @@ public class mysketch extends PApplet {
         if (frameCount % 60 == 0 && bossBulletCount < bossBullets.length) {
             bossBullets[bossBulletCount] =new BossBullet(this,nian.x,nian.y,mc.getX(),mc.getY());
             bossBulletCount++;
-        } else if (stage==4) {
-            
         }
     // Move and draw boss bullets
     for (int i = 0; i < bossBulletCount; i++) {
@@ -191,6 +216,82 @@ public class mysketch extends PApplet {
     textAlign(CENTER);
     text("NIAN", 400, 50);
     textAlign(LEFT);
+    
+    // Going to stage 4
+    if (nian.bhealth <= 0) {
+        stage = 4;
+        bossIntro = true;
+
+        // reset HP for phase 2
+        nian.bhealth = 5000;
+        mc.health = 1000;
+
+        if (music != null) {
+            music.stop();
+        }
+    }
+    } else if (stage == 4) {
+        // Background
+        image(waterfall, 0, 0);
+        // Music check to stop
+        if (music != null && music.isRunning()) {
+            music.stop();
+        }
+        // Intro dialogue
+        if (bossIntro) {
+            fill(0, 0, 0, 180);
+            rect(0, 600, 800, 200);
+            fill(255);
+            textSize(25);
+            textAlign(CENTER);
+            text("Nian: You dare challenge me?\n It's time to show you my true power.", 400, 650);
+            text("Press ENTER to begin the battle", 400, 700);
+            return; // stop game logic until fight starts
+        }
+        // FIGHT PHASE
+        // Play music
+        if (music != null && !music.isRunning()) {
+            music.loop(Clip.LOOP_CONTINUOUSLY);
+        }
+        mc.draw();
+        fill(0, 255, 0);
+        textSize(20);
+        textAlign(CENTER);
+        text("HP: " + mc.health, mc.getX() + 75, mc.getY() + 170);
+        angle += 0.03;
+        int centerX = 400;
+        int centerY = 300;
+        int radius = 150;
+        nian.x = (int)(centerX + radius * cos(angle));
+        nian.y = (int)(centerY + radius * sin(angle));
+        nian.draw();
+        fill(255, 0, 0);
+        text("HP: " + nian.bhealth, nian.x + 75, nian.y + 170);
+        // bullets
+        if (frameCount % 60 == 0 && bossBulletCount < bossBullets.length) {
+            bossBullets[bossBulletCount] =
+                new BossBullet(this, nian.x, nian.y, mc.getX(), mc.getY());
+            bossBulletCount++;
+        }
+        for (int i = 0; i < bossBulletCount; i++) {
+            if (bossBullets[i] != null) {
+                bossBullets[i].move();
+                bossBullets[i].draw();
+
+                if (bossBullets[i].isCollidingWith(mc)) {
+                    mc.health -= 5;
+                    bossBullets[i] = null;
+
+                    if (mc.health <= 0) {
+                        stage = 0;
+                    }
+                }
+            }
+        }
+        fill(255);
+        textSize(30);
+        textAlign(CENTER);
+        text("NIAN", 400, 50);
     }
     // movement (GLOBAL, always runs)
     if (keyPressed) {
@@ -257,6 +358,9 @@ public class mysketch extends PApplet {
                     stage = 3; // dialogue finished, go to stage 3
                 }
             }
+        }
+        if (stage == 4 && bossIntro && keyCode == ENTER) {
+            bossIntro = false;
         }
     }
     

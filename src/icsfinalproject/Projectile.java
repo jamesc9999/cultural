@@ -18,6 +18,7 @@ public class Projectile {
     private int height, width;
     private PImage image;
     private PApplet app;
+    public static int totalProjectiles = 0;
     
     public Projectile(PApplet app, int speed, int dmg, int x, int y, String image) {
         this.app = app;
@@ -28,6 +29,7 @@ public class Projectile {
         this.image=app.loadImage(image);
         this.height=this.image.height;
         this.width=this.image.width;
+        totalProjectiles++;
     }
     
     public void movement() {
